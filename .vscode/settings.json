@@ -1,0 +1,6 @@
+{
+  "WillLuke.nextjs.addTypesOnSave": true,
+  "vscode.tsc.compiler.alertTSConfigChanges": "never",
+  "WillLuke.nextjs.hasPrompted": true,
+  "vscode.tsc.compiler.alertOnError": "never"
+}

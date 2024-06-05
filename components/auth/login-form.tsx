@@ -15,20 +15,25 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,  
+  FormMessage,
 } from "@/components/ui/form";
-import { CardWrapper } from "@/components/auth/card-wrapper"
+import { CardWrapper } from "@/components/auth/card-wrapper";
 import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
 import { login } from "@/actions/login";
+import { PasswordInput } from "@/components/password-input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
+
+const regexPattern: string = "^\\d+$";
 
 export const LoginForm = () => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  const urlError = searchParams.get("error") === "OAuthAccountNotLinked"
-    ? "Email already in use with different provider!"
-    : "";
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Email already in use with different provider!"
+      : "";
 
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [error, setError] = useState<string | undefined>("");
@@ -46,7 +51,7 @@ export const LoginForm = () => {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError("");
     setSuccess("");
-    
+
     startTransition(() => {
       login(values, callbackUrl)
         .then((data) => {
@@ -76,29 +81,38 @@ export const LoginForm = () => {
       showSocial
     >
       <Form {...form}>
-        <form 
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             {showTwoFactor && (
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Two Factor Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        disabled={isPending}
-                        placeholder="123456"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="flex justify-center">
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Two Factor Code</FormLabel>
+                      <FormControl>
+                        <InputOTP
+                          {...field}
+                          disabled={isPending}
+                          maxLength={6}
+                          pattern={regexPattern}
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             )}
             {!showTwoFactor && (
               <>
@@ -127,11 +141,10 @@ export const LoginForm = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input
+                        <PasswordInput
                           {...field}
                           disabled={isPending}
                           placeholder="******"
-                          type="password"
                         />
                       </FormControl>
                       <Button
@@ -140,24 +153,18 @@ export const LoginForm = () => {
                         asChild
                         className="px-0 font-normal"
                       >
-                        <Link href="/auth/reset">
-                          Forgot password?
-                        </Link>
+                        <Link href="/auth/reset">Forgot password?</Link>
                       </Button>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-            </>
-          )}
+              </>
+            )}
           </div>
           <FormError message={error || urlError} />
           <FormSuccess message={success} />
-          <Button
-            disabled={isPending}
-            type="submit"
-            className="w-full"
-          >
+          <Button disabled={isPending} type="submit" className="w-full">
             {showTwoFactor ? "Confirm" : "Login"}
           </Button>
         </form>
